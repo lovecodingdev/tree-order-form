@@ -78,6 +78,8 @@ export default defineComponent({
     onFileCheck(event: Event) {
       let checked = (event.target as HTMLInputElement).checked
       this.$emit('changeFileCheck', this.tree.key, checked)
+      this.$store.commit('files/add', this.tree.file)
+      console.log(this.$store.state)
     },
     changeFileCheck(key: string, checked: boolean) {
       let index = this.checkedFiles.indexOf(key)
