@@ -16,7 +16,7 @@
       >
         {{ tree.label }}
       </label>
-      <div v-if="tree.lastFolder">
+      <div v-if="tree.lastFolder && showChildren">
         <input
           :id="'check_all_' + tree.key"
           type="checkbox"
@@ -108,9 +108,6 @@ export default defineComponent({
 
 <style scoped>
 .tree-form {
-  width: 960px;
-  background: #dee9f7;
-  margin: auto;
 }
 .cursor-pointer {
   cursor: pointer;

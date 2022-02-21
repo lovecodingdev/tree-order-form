@@ -1,5 +1,6 @@
 <template>
   <div class="downloader">
+    <h2>Download System</h2>
     <tree-form :tree="tree" :depth="0" />
     <button class="download-button" @click="onDownload">Download</button>
   </div>
@@ -66,13 +67,12 @@ export default defineComponent({
 <style scoped>
 .downloader {
   width: 960px;
-  background: #dee9f7;
   margin: auto;
 }
 .download-button {
   position: fixed;
   right: calc((100% - 960px) / 2);
-  top: 48px;
+  top: 72px;
   background-color: #708edd;
   color: white;
   border-radius: 4px;
