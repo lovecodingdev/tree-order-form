@@ -57,6 +57,7 @@ export default defineComponent({
     },
     onDownload() {
       confirm('Are you sure to download the files?')
+      console.log(this.$store.state.files.checkedFiles)
     }
   }
 })
