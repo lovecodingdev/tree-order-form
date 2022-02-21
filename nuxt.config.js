@@ -21,8 +21,7 @@ export default {
   css: ['~/assets/css/color.css', '~/assets/css/font.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: [
-  ],
+  plugins: [],
 
   router: {
     middleware: []
@@ -36,6 +35,7 @@ export default {
     // https://go.nuxtjs.dev/typescript
     '@nuxt/typescript-build',
     '@nuxtjs/composition-api/module',
+    '@nuxtjs/fontawesome'
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -50,5 +50,12 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
 
-  publicRuntimeConfig: {}
+  publicRuntimeConfig: {},
+
+  fontawesome: {
+    icons: {
+      solid: true,
+      brands: true
+    }
+  }
 }

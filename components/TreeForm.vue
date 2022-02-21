@@ -1,18 +1,31 @@
 <template>
   <div class="tree-form">
-    <div :style="indent" class="cursor-pointer flex">
-      <input v-if="tree.file" type="checkbox" :checked="checked" />
+    <div :style="indent" class="flex">
       <span v-if="!tree.file">&bull;</span>
-      <span class="label" @click="toggleChildren">{{ tree.label }}</span>
-      <div v-if="tree.lastFolder" class="right">
+      <input
+        v-if="tree.file"
+        :id="'check_' + tree.key"
+        :checked="checked"
+        type="checkbox"
+        @click="onFileCheck"
+      />
+      <label
+        class="cursor-pointer label"
+        :for="'check_' + tree.key"
+        @click="toggleChildren"
+      >
+        {{ tree.label }}
+      </label>
+      <div v-if="tree.lastFolder">
         <input
           :id="'check_all_' + tree.key"
-          v-model="checkAll"
           type="checkbox"
-          @click="toggleCheck"
+          :checked="checkAll"
+          @click="onCheckAll"
         />
         <label :for="'check_all_' + tree.key">Check All</label>
       </div>
+      <font-awesome-icon v-if="tree.nodes" :icon="arrowIcon" class="icon" />
     </div>
     <div v-if="showChildren">
       <tree-form
@@ -20,7 +33,8 @@
         :key="node.key"
         :tree="node"
         :depth="depth + 1"
-        :checked="checkAll"
+        :checked="checkedFiles.includes(node.key)"
+        @changeFileCheck="changeFileCheck"
       />
     </div>
   </div>
@@ -34,10 +48,14 @@ export default defineComponent({
   data() {
     return {
       showChildren: false,
-      checkAll: false
+      checkAll: false,
+      checkedFiles: [] as string[]
     }
   },
   computed: {
+    arrowIcon(): string {
+      return this.showChildren ? 'angle-up' : 'angle-down'
+    },
     indent(): Object {
       return { padding: `0 0 0 ${this.depth * 24}px` }
     }
@@ -46,8 +64,40 @@ export default defineComponent({
     toggleChildren() {
       this.showChildren = !this.showChildren
     },
-    toggleCheck() {
-      // console.log(this.checkAll)
+    onCheckAll(event: Event) {
+      let checked = (event.target as HTMLInputElement).checked
+      if (checked) {
+        this.checkedFiles = this.tree.nodes.map(
+          (node: { key: string }) => node.key
+        )
+      } else {
+        this.checkedFiles = []
+      }
+      this.checkAll = checked
+    },
+    onFileCheck(event: Event) {
+      let checked = (event.target as HTMLInputElement).checked
+      this.$emit('changeFileCheck', this.tree.key, checked)
+    },
+    changeFileCheck(key: string, checked: boolean) {
+      let index = this.checkedFiles.indexOf(key)
+      if (index === -1 && checked) {
+        this.checkedFiles.push(key)
+      }
+      if (index !== -1 && !checked) {
+        this.checkedFiles.splice(index, 1)
+      }
+      this.checkedAll()
+    },
+    checkedAll() {
+      let checked = true
+      for (const node of this.tree.nodes) {
+        if (!this.checkedFiles.includes(node.key)) {
+          checked = false
+          break
+        }
+      }
+      this.checkAll = checked
     }
   }
 })
@@ -62,13 +112,13 @@ export default defineComponent({
 .cursor-pointer {
   cursor: pointer;
 }
-.right {
-  float: right;
-}
 .flex {
   display: flex;
 }
 .label {
   flex: 1;
+}
+.icon {
+  margin: auto 8px;
 }
 </style>
