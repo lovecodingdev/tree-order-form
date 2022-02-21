@@ -33,7 +33,6 @@
         :key="node.key"
         :tree="node"
         :depth="depth + 1"
-        :checked="checkedFiles.includes(node.key)"
         @changeFileCheck="changeFileCheck"
       />
     </div>
@@ -45,12 +44,11 @@ import { File, Tree } from '~/utils/types'
 
 export default defineComponent({
   name: 'TreeForm',
-  props: ['tree', 'depth', 'checked'],
+  props: ['tree', 'depth'],
   data() {
     return {
       showChildren: false,
-      checkAll: false,
-      checkedFiles: [] as string[]
+      checkAll: false
     }
   },
   computed: {
@@ -59,6 +57,15 @@ export default defineComponent({
     },
     indent(): Object {
       return { padding: `0 0 0 ${this.depth * 24}px` }
+    },
+    checkedFiles(): File[] {
+      return this.$store.state.files.checkedFiles
+    },
+    checked(): boolean {
+      let fIndex = this.checkedFiles.findIndex(
+        (f) => f.path === this.tree.file.path
+      )
+      return fIndex !== -1
     }
   },
   methods: {
@@ -67,35 +74,28 @@ export default defineComponent({
     },
     onCheckAll(event: Event) {
       let checked = (event.target as HTMLInputElement).checked
+      let files = this.tree.nodes.map((node: Tree) => node.file)
       if (checked) {
-        this.checkedFiles = this.tree.nodes.map(
-          (node: { key: string }) => node.key
-        )
+        this.$store.commit('files/addFiles', files)
       } else {
-        this.checkedFiles = []
+        this.$store.commit('files/removeFiles', files)
       }
       this.checkAll = checked
     },
-    onFileCheck(event: Event) {
-      let checked = (event.target as HTMLInputElement).checked
-      this.$emit('changeFileCheck', this.tree.key, checked)
+    onFileCheck() {
       this.$store.commit('files/toggle', this.tree.file)
-      console.log(this.$store.state)
+      this.$emit('changeFileCheck')
     },
-    changeFileCheck(key: string, checked: boolean) {
-      let index = this.checkedFiles.indexOf(key)
-      if (index === -1 && checked) {
-        this.checkedFiles.push(key)
-      }
-      if (index !== -1 && !checked) {
-        this.checkedFiles.splice(index, 1)
-      }
+    changeFileCheck() {
       this.checkedAll()
     },
     checkedAll() {
       let checked = true
       for (const node of this.tree.nodes) {
-        if (!this.checkedFiles.includes(node.key)) {
+        let fIndex = this.checkedFiles.findIndex(
+          (f) => f.path === node.file.path
+        )
+        if (fIndex === -1) {
           checked = false
           break
         }
